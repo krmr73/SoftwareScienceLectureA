@@ -1,57 +1,71 @@
 import unittest
 from interpreter import *
 
-def tAdd(a, b):
-    return BinExpr('+', a, b)
-def tSub(a,b):
-    return BinExpr('-', a, b)
-def tMul(a,b):
-    return BinExpr('*', a, b)
-def tDiv(a,b):
-    return BinExpr('/', a, b)
-def tInt(value):
-    return Int(value)
-
 class TestArithmeticOperations(unittest.TestCase):
     def test_add1(self):
-        e = tAdd(tInt(1), tInt(1))
+        e = tAdd(Int(1), Int(1))
         self.assertEqual(e.evaluate(), 2)
         
     def test_add2(self):
-        e = tAdd(tInt(2), tInt(3))
+        e = tAdd(Int(2), Int(3))
         self.assertEqual(e.evaluate(), 5)
         
     def test_sub1(self):
-        e = tSub(tInt(1), tInt(1))
+        e = tSub(Int(1), Int(1))
         self.assertEqual(e.evaluate(), 0)
 
     def test_sub2(self):
-        e = tSub(tInt(1),tInt(2))
+        e = tSub(Int(1),Int(2))
         self.assertEqual(e.evaluate(), -1)
         
     def test_mul1(self):
-        e = tMul(tInt(1), tInt(1))
+        e = tMul(Int(1), Int(1))
         self.assertEqual(e.evaluate(), 1)
 
     def test_mul2(self):
-        e = tMul(tInt(2),tInt(2))
+        e = tMul(Int(2),Int(2))
         self.assertEqual(e.evaluate(), 4)
         
     def test_mul3(self):
-        e = tMul(tInt(2),tInt(0))
+        e = tMul(Int(2),Int(0))
         self.assertEqual(e.evaluate(), 0)
         
     def test_div1(self):
-        e = tDiv(tInt(0), tInt(1))
+        e = tDiv(Int(0), Int(1))
         self.assertEqual(e.evaluate(), 0)
 
     def test_div2(self):
-        e = tDiv(tInt(2),tInt(1))
+        e = tDiv(Int(2),Int(1))
         self.assertEqual(e.evaluate(), 2)
         
     def test_div3(self):
-        e = tDiv(tInt(6),tInt(2))
+        e = tDiv(Int(6),Int(2))
         self.assertEqual(e.evaluate(), 3)
+        
+class TestComp(unittest.TestCase):
+    def test_Lt(self):
+        e = tLt(Int(1), Int(2))
+        self.assertEqual(e.evaluate(), True)
+        
+    def test_Gt(self):
+        e = tGt(Int(2), Int(1))
+        self.assertEqual(e.evaluate(), True)
+        
+    def test_Lte(self):
+        e = tLte(Int(1), Int(1))
+        self.assertEqual(e.evaluate(), True)
+        
+    def test_Gte(self):
+        e = tGte(Int(1), Int(1))
+        self.assertEqual(e.evaluate(), True)
+        
+    def test_Eq(self):
+        e = tEq(Int(1), Int(1))
+        self.assertEqual(e.evaluate(), True)
+        
+    def test_Neq(self):
+        e = tNeq(Int(1), Int(2))
+        self.assertEqual(e.evaluate(), True)
 
 if __name__ == '__main__':
     unittest.main()
