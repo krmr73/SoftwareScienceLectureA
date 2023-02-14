@@ -3,6 +3,41 @@ class Expr:
     def __init__(self, type) -> None:
         self.type = type
 
+# プログラム
+class Program:
+    def __init__(self, functions, *bodies) -> None:
+        self.type = "Program"
+        self.functions = functions
+        self.bodies = bodies
+    def evaluateProgram(self):    
+        env = {}
+        for f in self.functions:
+            env[f.name] = f
+        for body in self.bodies:
+            result = body.evaluate(env)
+        return result
+
+# 関数定義
+class Func:
+    def __init__(self, name, params, body) -> None:
+        self.type = "Func"
+        self.name = name
+        self.params = params
+        self.body = body
+# 関数呼び出し
+class Call(Expr):
+    def __init__(self, name, *args) -> None:
+        super().__init__("Call")
+        self.name = name
+        self.args = args
+    def evaluate(self, env):
+        func = env[self.name]
+        args = [arg.evaluate(env) for arg in self.args]
+        newEnv = env
+        for i, arg in enumerate(args):
+            newEnv[func.params[i]] = arg
+        return func.body.evaluate(newEnv)
+    
 class BinExpr(Expr):
     def __init__(self, op, lhs, rhs) -> None:
         super().__init__("BinExpr")
@@ -64,12 +99,34 @@ class Seq(Expr):
         super().__init__("Seq")
         self.bodies = bodies
     def evaluate(self, env):
-        for b in self.bodies:
-            result = b.evaluate(env)
+        for body in self.bodies:
+            result = body.evaluate(env)
         return result
     
+# if文
+class If(Expr):
+    def __init__(self, condition, thenClause, elseClause) -> None:
+        super().__init__("If")
+        self.condition = condition
+        self.thenClause = thenClause
+        self.elseClaluse = elseClause
+    def evaluate(self, env):
+        if self.condition.evaluate(env) == True:
+            return self.thenClause.evaluate(env)
+        else:
+            return self.elseClaluse.evaluate(env)
 
-           
+# while文
+class While(Expr):
+    def __init__(self, condition, *bodies) -> None:
+        super().__init__("While")
+        self.condition = condition
+        self.bodies = bodies
+    def evaluate(self, env):
+        while self.condition.evaluate(env) == True:
+            for body in self.bodies:
+                body.evaluate(env)
+       
 # 補助関数
 def tAdd(a, b):
     return BinExpr('+', a, b)
