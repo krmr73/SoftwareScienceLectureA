@@ -1,5 +1,6 @@
 import unittest
 from interpreter import *
+from assist_func import *
 
 class TestArithmeticOperations(unittest.TestCase):
     # (1 + 1) == 2
