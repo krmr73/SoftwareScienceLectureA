@@ -69,6 +69,16 @@ class TestComp(unittest.TestCase):
         e = tNeq(Int(1), Int(2))
         self.assertEqual(e.evaluate({}), True)
         
+class TestBool(unittest.TestCase):
+    # (1 and 1) == True
+    def test_and(self):
+        e = tAnd(Int(1), Int(1))
+        self.assertEqual(e.evaluate({}), True)
+    # (1 or 1) == True
+    def test_or(self):
+        e = tOr(Int(1), Int(0))
+        self.assertEqual(e.evaluate({}), True)
+        
 class TestSeqAssign(unittest.TestCase):
     # {a = 100; a} == 100
     def test_seq_assign1(self):
@@ -137,6 +147,40 @@ class TestWhile(unittest.TestCase):
         )
         self.assertEqual(program.evaluateProgram(), 10)
         
+    def test_while2(self):
+        e = Seq(
+            Assignment('x', Int(0)),
+            While(tLt(Ident('x'), Int(10)), Assignment('x', tAdd(Ident('x'), Int(1)))),
+            Ident('x')
+        ) 
+        self.assertEqual(e.evaluate({}), 10)
+        
+class TestFor(unittest.TestCase):
+    """
+        sum = 0;
+        for(i = 0; i < 10; i = i + 1){
+            sum = sum + i;
+        };
+        sum
+    == 45
+    """
+    def test_for1(self):
+        program = Program(
+            [],
+            Assignment('sum', Int(0)),
+            For(Assignment('i', Int(0)), tLt(Ident('i'), Int(10)), Assignment('i', tAdd(Ident('i'), Int(1))), Assignment('sum', tAdd(Ident('sum'),Ident('i')))),
+            Ident('sum')
+        )
+        self.assertEqual(program.evaluateProgram(), 45)
+        
+    def test_for2(self):
+        e = Seq(
+            Assignment('sum', Int(0)),
+            For(Assignment('i', Int(0)), tLt(Ident('i'), Int(10)), Assignment('i', tAdd(Ident('i'), Int(1))), Assignment('sum', tAdd(Ident('sum'),Ident('i')))),
+            Ident('sum')
+        )
+        self.assertEqual(e.evaluate({}), 45)
+    
 class TestCall(unittest.TestCase):
     """
         function add(a, b){
@@ -154,3 +198,5 @@ class TestCall(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    # e = Print(Int(3))
+    # e.evaluate({})

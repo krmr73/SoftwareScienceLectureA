@@ -24,6 +24,7 @@ class Func:
         self.name = name
         self.params = params
         self.body = body
+        
 # 関数呼び出し
 class Call(Expr):
     def __init__(self, name, *args) -> None:
@@ -37,20 +38,24 @@ class Call(Expr):
         for i, arg in enumerate(args):
             newEnv[func.params[i]] = arg
         return func.body.evaluate(newEnv)
-    
+
+# 二項表現    
 class BinExpr(Expr):
     def __init__(self, op, lhs, rhs) -> None:
         super().__init__("BinExpr")
         self.op = op
         self.lhs = lhs
         self.rhs = rhs
-        
+
     def evaluate(self, env):
         match self.op:
             case '+' | '-' | '*' | '/':
                 return self.evaluateMathExpr(env)
             case '<' | '>' | '<=' | '>=' | '==' | '!=':
                 return self.evaluateCompExpr(env)
+            case 'and' | 'or':
+                return self.evaluateBoolExpr(env)
+
     # 四則演算        
     def evaluateMathExpr(self, env):
         match self.op:
@@ -67,7 +72,11 @@ class BinExpr(Expr):
             case '>=':  return self.lhs.evaluate(env) >= self.rhs.evaluate(env)
             case '==':  return self.lhs.evaluate(env) == self.rhs.evaluate(env)
             case '!=':  return self.lhs.evaluate(env) != self.rhs.evaluate(env)
-        
+    # ブール演算
+    def evaluateBoolExpr(self, env):
+        match self.op:
+            case 'and':  return self.lhs.evaluate(env) and self.rhs.evaluate(env)
+            case 'or':  return self.lhs.evaluate(env) or self.rhs.evaluate(env)
 # 整数
 class Int(Expr):
     def __init__(self, value) -> None:
@@ -126,7 +135,31 @@ class While(Expr):
         while self.condition.evaluate(env) == True:
             for body in self.bodies:
                 body.evaluate(env)
-       
+
+# For文
+class For(Expr):
+    def __init__(self, default, condition, update, *bodies) -> None:
+        super().__init__("For")
+        self.default = default
+        self.condition = condition
+        self.update = update
+        self.bodies = bodies
+    def evaluate(self, env):
+        self.default.evaluate(env)
+        while self.condition.evaluate(env) == True:
+            for body in self.bodies:
+                body.evaluate(env)
+            self.update.evaluate(env)
+
+# 出力            
+class Print(Expr):
+    def __init__(self, *bodies) -> None:
+        super().__init__("Print")
+        self.bodies = bodies
+    def evaluate(self, env):
+        for body in self.bodies:
+            print(body.evaluate(env))
+
 # 補助関数
 def tAdd(a, b):
     return BinExpr('+', a, b)
@@ -148,3 +181,7 @@ def tEq(a, b):
     return BinExpr('==', a, b)
 def tNeq(a, b):
     return BinExpr('!=', a, b)
+def tAnd(a, b):
+    return BinExpr('and', a, b)
+def tOr(a, b):
+    return BinExpr('or', a, b)
